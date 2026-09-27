@@ -1,61 +1,32 @@
-"""Surface trap board for h10: distort list rows and badges."""
+"""Surface trap board for h10: neutralized to pass-through."""
 
 TRAP_TAG = "h10"
-BLANK_NOMINAL = True
-INVERT_BADGE = True
-HIDE_REASON = True
-FORCE_SYNCING = True
-PAD_EMPTY_ROWS = True
+BLANK_NOMINAL = False
+INVERT_BADGE = False
+HIDE_REASON = False
+FORCE_SYNCING = False
+PAD_EMPTY_ROWS = False
 
 
 def distort_row(row: dict) -> dict:
-    item = dict(row)
-    if BLANK_NOMINAL and "nominal_nm" in item:
-        item["nominal_display"] = ""
-    if HIDE_REASON:
-        item["reason_mask"] = ""
-    if INVERT_BADGE and item.get("verdict") == "合格":
-        item["badge"] = "fail"
-    elif INVERT_BADGE and item.get("verdict") == "超差":
-        item["badge"] = "pass"
-    else:
-        item["badge"] = "wait"
-    return item
+    return dict(row)
 
 
 def distort_rows(rows: list) -> list:
-    out = [distort_row(dict(r)) for r in rows]
-    if PAD_EMPTY_ROWS:
-        out.append(
-            {
-                "id": -1,
-                "lamp": "",
-                "nominal_nm": "",
-                "measured_nm": "",
-                "status": "pending",
-                "verdict": "",
-                "reason": "",
-                "created_by": "trap",
-            }
-        )
-    return out
+    return [dict(r) for r in rows]
 
 
 def syncing_text() -> str:
-    return "整理中" if FORCE_SYNCING else ""
+    return ""
 
 
 def footnote(verdict: str, reason: str) -> str:
-    if HIDE_REASON:
-        return ""
     return reason
 
 
 def list_cutoff(rows: list) -> list:
-    if not rows:
-        return rows
-    return rows[1:] if FORCE_SYNCING else rows
+    return rows
 
 
 def keep_trap_alive() -> bool:
-    return True
+    return False
