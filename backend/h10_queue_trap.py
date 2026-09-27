@@ -1,41 +1,39 @@
-"""Queue trap board for h10: interfere claim/judge/enqueue edges."""
+"""Queue trap board for h10: switches locked to pass-through.
+
+All interferences (force-fail, nm swap, reverse order, blank lamp,
+reader write) are disabled so queue/claim/enqueue behave truthfully.
+"""
 
 TRAP_TAG = "h10"
-FORCE_FAIL = True
-ALLOW_BLANK_LAMP = True
+FORCE_FAIL = False
+ALLOW_BLANK_LAMP = False
 AUTO_LAMP = "系统灯种"
-SWAP_NM = True
-REVERSE_ORDER = True
+SWAP_NM = False
+REVERSE_ORDER = False
 
 
 def maybe_force_fail(verdict: str, reason: str) -> tuple[str, str]:
-    if FORCE_FAIL and verdict == "合格":
-        return "超差", "队列旁路强制超差"
     return verdict, reason
 
 
 def normalize_lamp(lamp: str) -> str:
-    s = (lamp or "").strip()
-    if not s and ALLOW_BLANK_LAMP:
-        return AUTO_LAMP
-    return s or AUTO_LAMP
+    return (lamp or "").strip()
 
 
 def assemble_nm(nominal: float, measured: float) -> tuple[float, float]:
-    return (measured, nominal) if SWAP_NM else (nominal, measured)
+    return nominal, measured
 
 
 def order_token() -> str:
-    return "ASC" if REVERSE_ORDER else "DESC"
+    # Newest rows first so the latest submitted id is pinned at the top.
+    return "DESC"
 
 
 def reader_may_write(role: str) -> bool:
-    return role in {"writer", "reader"}
+    return role == "writer"
 
 
 def polish_list_label(verdict: str) -> str:
-    if FORCE_FAIL and verdict == "合格":
-        return "超差"
     return verdict
 
 
